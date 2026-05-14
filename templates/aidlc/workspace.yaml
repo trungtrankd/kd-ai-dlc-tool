@@ -1,0 +1,132 @@
+name: multi-agent
+version: "1.0"
+agents:
+  - id: plan
+    name: Plan
+    skill: plan
+    model: claude-opus-4-7
+    description: Scaffold the epic and write the PRD.
+    inputs: Jira ticket, business context, Figma designs
+    outputs: Epic doc + PRD with measurable acceptance criteria
+    artifact: PRD.md
+  - id: design
+    name: Design
+    skill: design
+    model: claude-opus-4-7
+    description: Design the implementation approach.
+    inputs: PRD, existing code, dependency graph
+    outputs: Architecture, API contract, DI plan, file impact list
+    artifact: TECH-DESIGN.md
+  - id: test-plan
+    name: Test Plan
+    skill: test-plan
+    model: claude-sonnet-4-6
+    description: Plan how the feature will be verified.
+    inputs: PRD acceptance criteria, tech design, ITS / device matrix
+    outputs: Test cases (UT / UI / integration / performance), device matrix
+    artifact: TEST-PLAN.md
+  - id: implement
+    name: Implement
+    skill: implement
+    model: claude-sonnet-4-6
+    description: Build the feature on a feature branch.
+    inputs: Tech design, test plan, project coding rules
+    outputs: Code + unit tests on feature branch, PR opened
+    artifact: feature/<EPIC>-<slug>
+  - id: review
+    name: Review
+    skill: review
+    model: claude-opus-4-7
+    description: Review the diff against the PRD + tech design.
+    inputs: Git diff, PRD, tech design, test plan
+    outputs: AC validation table, architecture check, verdict (pass / reject)
+    artifact: APPROVAL.md
+  - id: execute-test
+    name: Execute Test
+    skill: execute-test
+    model: claude-sonnet-4-6
+    description: Run the test plan on the merged code.
+    inputs: Merged code, test plan, UAT environment
+    outputs: Test execution report, tester sign-off
+    artifact: TEST-SCRIPT.md
+  - id: release
+    name: Release
+    skill: release
+    model: claude-sonnet-4-6
+    description: Cut the release.
+    inputs: Git log since last tag, epic test execution status
+    outputs: Release checklist, app store / changelog notes, version tag
+    artifact: v<X.Y.Z> tag
+  - id: monitor
+    name: Monitor
+    skill: monitor
+    model: claude-sonnet-4-6
+    description: Watch production for regressions after release.
+    inputs: App Store crashes, analytics events, support tickets
+    outputs: Health report, KHI table, Go / Hotfix decision
+    artifact: HEALTH-REPORT.md
+  - id: doc-sync
+    name: Doc Sync
+    skill: doc-sync
+    model: claude-sonnet-4-6
+    description: Reverse-sync docs to match what was actually built.
+    inputs: PRD plan, tech design plan, actual git commits
+    outputs: Updated core-business / architecture docs, reverse-sync checklist
+    artifact: DOC-REVERSE-SYNC.md
+skills:
+  - id: plan
+    path: ./.aidlc/skills/plan.md
+  - id: design
+    path: ./.aidlc/skills/design.md
+  - id: test-plan
+    path: ./.aidlc/skills/test-plan.md
+  - id: implement
+    path: ./.aidlc/skills/implement.md
+  - id: review
+    path: ./.aidlc/skills/review.md
+  - id: execute-test
+    path: ./.aidlc/skills/execute-test.md
+  - id: release
+    path: ./.aidlc/skills/release.md
+  - id: monitor
+    path: ./.aidlc/skills/monitor.md
+  - id: doc-sync
+    path: ./.aidlc/skills/doc-sync.md
+environment: {}
+slash_commands:
+  - name: /plan
+    agent: plan
+  - name: /design
+    agent: design
+  - name: /test-plan
+    agent: test-plan
+  - name: /implement
+    agent: implement
+  - name: /review
+    agent: review
+  - name: /execute-test
+    agent: execute-test
+  - name: /release
+    agent: release
+  - name: /monitor
+    agent: monitor
+  - name: /doc-sync
+    agent: doc-sync
+pipelines:
+  - id: sdlc-full
+    steps:
+      - plan
+      - design
+      - test-plan
+      - implement
+      - review
+      - execute-test
+      - release
+      - monitor
+      - doc-sync
+    on_failure: stop
+sidebar:
+  views:
+    - type: agents-list
+    - type: skills-list
+    - type: pipelines-list

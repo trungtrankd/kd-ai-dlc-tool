@@ -1,0 +1,17 @@
+# Source & build tooling — not needed in the package
+.vscode/**
+src/**
+node_modules/**
+.gitignore
+tsconfig.json
+esbuild.js
+**/*.ts
+**/*.js.map
+
+# Exclude previously built VSIX files
+*.vsix
+
+# Include everything else (dist/, templates/, media/, README, CHANGELOG, package.json)
+!dist/**
+!templates/**
+!media/**

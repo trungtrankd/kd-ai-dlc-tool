@@ -1,0 +1,100 @@
+{
+  "name": "kd-ai-dlc-tool",
+  "displayName": "KD AIDLC — AI Development Lifecycle",
+  "description": "Run a full AI-powered SDLC pipeline (Plan → Design → Implement → Review → Release) inside VS Code using Claude Code agents.",
+  "version": "1.0.0",
+  "publisher": "trungtrankd",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/trungtrankd/kd-ai-dlc-tool"
+  },
+  "homepage": "https://github.com/trungtrankd/kd-ai-dlc-tool#readme",
+  "bugs": {
+    "url": "https://github.com/trungtrankd/kd-ai-dlc-tool/issues"
+  },
+  "keywords": [
+    "ai", "claude", "sdlc", "pipeline", "agent",
+    "product-owner", "developer", "qa", "automation", "workflow"
+  ],
+  "engines": { "vscode": "^1.85.0" },
+  "categories": ["Other"],
+  "activationEvents": ["onStartupFinished", "workspaceContains:.task-board.json"],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [{ "id": "agentDashboard", "title": "AIDLC", "icon": "$(circuit-board)" }]
+    },
+    "views": {
+      "agentDashboard": [
+        {
+          "type": "webview",
+          "id": "agentDashboard.sidebar",
+          "name": "AIDLC Workspace"
+        }
+      ]
+    },
+    "commands": [
+      { "command": "agentDashboard.openDashboard",         "title": "AIDLC: Open Epics",            "icon": "$(layout-panel)" },
+      { "command": "agentDashboard.openBuilder",           "title": "AIDLC: Open Builder",          "icon": "$(tools)" },
+      { "command": "agentDashboard.openActivityFeed",      "title": "AIDLC: Open Activity Feed",    "icon": "$(list-flat)" },
+      { "command": "agentDashboard.openStoryLibrary",      "title": "AIDLC: Open Story Library",    "icon": "$(library)" },
+      { "command": "agentDashboard.runPipeline",           "title": "AIDLC: Run Pipeline",          "icon": "$(play)" },
+      { "command": "agentDashboard.runAidlcFullPipeline",  "title": "AIDLC: Run Full Pipeline",     "icon": "$(run-all)" },
+      { "command": "agentDashboard.reviewCurrentWork",     "title": "AIDLC: Review Current Work",   "icon": "$(checklist)" },
+      { "command": "agentDashboard.continueAidlcPipeline", "title": "AIDLC: Continue Pipeline",     "icon": "$(debug-continue)" },
+      { "command": "agentDashboard.openAgentFile",         "title": "AIDLC: Open Agent File" },
+      { "command": "agentDashboard.refreshAgents",         "title": "AIDLC: Refresh Agents",        "icon": "$(refresh)" },
+      { "command": "agentDashboard.clearBoard",            "title": "AIDLC: Clear Board",            "icon": "$(trash)" },
+      { "command": "agentDashboard.importTaiga",           "title": "AIDLC: Import from Taiga",     "icon": "$(cloud-download)" },
+      { "command": "agentDashboard.importAidlcTemplate",   "title": "AIDLC: Import Template",       "icon": "$(package)" },
+      { "command": "agentDashboard.refreshTaskBoard",      "title": "AIDLC: Refresh",               "icon": "$(refresh)" }
+    ],
+    "menus": {
+      "view/title": [
+        { "command": "agentDashboard.openBuilder",            "when": "view == agentDashboard.sidebar", "group": "navigation@1" },
+        { "command": "agentDashboard.openDashboard",          "when": "view == agentDashboard.sidebar", "group": "navigation@2" },
+        { "command": "agentDashboard.openActivityFeed",       "when": "view == agentDashboard.sidebar", "group": "navigation@3" },
+        { "command": "agentDashboard.runAidlcFullPipeline",   "when": "view == agentDashboard.sidebar", "group": "navigation@4" },
+        { "command": "agentDashboard.continueAidlcPipeline",  "when": "view == agentDashboard.sidebar", "group": "navigation@5" },
+        { "command": "agentDashboard.reviewCurrentWork",      "when": "view == agentDashboard.sidebar", "group": "navigation@6" },
+        { "command": "agentDashboard.refreshTaskBoard",       "when": "view == agentDashboard.sidebar", "group": "navigation@7" }
+      ],
+      "commandPalette": [
+        { "command": "agentDashboard.openDashboard" },
+        { "command": "agentDashboard.openBuilder" },
+        { "command": "agentDashboard.openActivityFeed" },
+        { "command": "agentDashboard.openStoryLibrary" },
+        { "command": "agentDashboard.runPipeline" },
+        { "command": "agentDashboard.runAidlcFullPipeline" },
+        { "command": "agentDashboard.reviewCurrentWork" },
+        { "command": "agentDashboard.continueAidlcPipeline" },
+        { "command": "agentDashboard.clearBoard" },
+        { "command": "agentDashboard.importTaiga" },
+        { "command": "agentDashboard.importAidlcTemplate" }
+      ]
+    },
+    "configuration": {
+      "title": "AIDLC",
+      "properties": {
+        "agentDashboard.claudePath": {
+          "type": "string",
+          "default": "",
+          "description": "Explicit path to the Claude Code CLI binary. Leave empty to auto-detect from PATH."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "bundle": "node esbuild.js",
+    "vscode:prepublish": "node esbuild.js --production"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.85.0",
+    "esbuild": "^0.20.0",
+    "typescript": "^5.0.0"
+  }
+}
