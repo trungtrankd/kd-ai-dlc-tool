@@ -178,8 +178,6 @@ export class DashboardPanel {
 <style nonce="${nonce}">
 /* ── Reset & root ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { height: 100vh; }
-html, body { min-height: 0; }
 
 :root {
   --bg:       #0b1219;
@@ -214,10 +212,6 @@ body {
   color: var(--fg);
   font-size: 12px;
   line-height: 1.5;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
 }
 
 /* ── Main header ── */
@@ -229,8 +223,10 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  flex-shrink: 0;
   flex-wrap: wrap;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .hdr-left { display: flex; flex-direction: column; }
@@ -303,7 +299,6 @@ body {
   display: flex;
   align-items: center;
   gap: 5px;
-  flex-shrink: 0;
   overflow-x: auto;
 }
 
@@ -337,16 +332,10 @@ body {
 
 /* ── Epic list ── */
 .epic-list {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-  overscroll-behavior: contain;
   padding: 12px 20px 20px;
   display: flex;
   flex-direction: column;
   gap: 6px;
-  scrollbar-gutter: stable;
 }
 
 .empty-state {
@@ -709,6 +698,11 @@ function boardStatus() {
 function computeEpics() {
   const list = [];
 
+  // Filename of the story that launched the active board (e.g. "story-001-foo.md")
+  const activeStoryFile = board && board.story
+    ? board.story.replace(/^stories\//, '')
+    : null;
+
   if (board) {
     const tasks = board.tasks || [];
     const done  = tasks.filter(t => t.status === 'done').length;
@@ -722,7 +716,12 @@ function computeEpics() {
     });
   }
 
-  const sorted = [...stories].sort((a, b) => {
+  // Exclude the story that is already represented by the ACTIVE board card
+  const filteredStories = activeStoryFile
+    ? stories.filter(s => s.filename !== activeStoryFile)
+    : stories;
+
+  const sorted = [...filteredStories].sort((a, b) => {
     const da = a.saved_at ? new Date(a.saved_at).getTime() : 0;
     const db = b.saved_at ? new Date(b.saved_at).getTime() : 0;
     return db - da;
@@ -925,21 +924,9 @@ function toggleCard(id, epic) {
 }
 
 function scrollCardIntoView(id) {
-  const container = document.getElementById('epic-list');
   const card = document.getElementById('card-' + id);
-  if (!container || !card) { return; }
-
-  const top = card.offsetTop - container.offsetTop;
-  const bottom = top + card.offsetHeight;
-  const visibleTop = container.scrollTop;
-  const visibleBottom = visibleTop + container.clientHeight;
-
-  if (top < visibleTop || bottom > visibleBottom) {
-    container.scrollTo({
-      top: Math.max(0, top - 8),
-      behavior: 'smooth',
-    });
-  }
+  if (!card) { return; }
+  card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 // ── Actions ────────────────────────────────────────────────

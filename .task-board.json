@@ -1,0 +1,97 @@
+{
+  "feature": "Pipeline Status Dashboard with Real-time Progress",
+  "story": "stories/story-001-pipeline-status-dashboard.md",
+  "created_at": "2026-05-14T08:00:00.000Z",
+  "tasks": [
+    {
+      "id": "plan",
+      "agent": "planner",
+      "task": "Analyse story requirements and produce a concrete implementation plan for the real-time pipeline status dashboard",
+      "status": "done",
+      "started_at": "2026-05-14T08:00:00.000Z",
+      "completed_at": "2026-05-14T08:02:00.000Z",
+      "depends_on": [],
+      "output": "Three files to change: src/types.ts (add started_at/completed_at to Task), src/panels/BuilderPanel.ts (send logs, enhance renderWorkflows), src/extension.ts (add BuilderPanel to onLogChange)"
+    },
+    {
+      "id": "design",
+      "agent": "designer",
+      "task": "Design the enhanced step-card layout: status icons, agent label, elapsed time, active-log strip, and progress bar label",
+      "status": "done",
+      "started_at": "2026-05-14T08:02:00.000Z",
+      "completed_at": "2026-05-14T08:04:00.000Z",
+      "depends_on": ["plan"],
+      "output": "Step boxes gain status CSS classes (step-pending/in_progress/done/failed), spinner keyframe, log strip below step row, progress label beside bar"
+    },
+    {
+      "id": "test-plan",
+      "agent": "tester",
+      "task": "Write acceptance test scenarios that map to each AC in the story",
+      "status": "done",
+      "started_at": "2026-05-14T08:04:00.000Z",
+      "completed_at": "2026-05-14T08:05:30.000Z",
+      "depends_on": ["design"],
+      "output": "5 scenarios defined covering: real-time refresh, in_progress spinner+log, done checkmark+elapsed, failed error, final progress bar at 100%"
+    },
+    {
+      "id": "implement",
+      "agent": "developer",
+      "task": "Apply code changes to types.ts, BuilderPanel.ts, and extension.ts",
+      "status": "done",
+      "started_at": "2026-05-14T08:05:30.000Z",
+      "completed_at": "2026-05-14T08:12:00.000Z",
+      "depends_on": ["test-plan"],
+      "output": "types.ts: +started_at/completed_at on Task. BuilderPanel.ts: import readLogEntries, send logs in _sendAllData, add status CSS, rewrite renderWorkflows with task status per step/progress bar/log strip. extension.ts: BuilderPanel.refreshAll added to onLogChange."
+    },
+    {
+      "id": "review",
+      "agent": "reviewer",
+      "task": "Review diff against story ACs and check for regressions",
+      "status": "done",
+      "started_at": "2026-05-14T08:12:00.000Z",
+      "completed_at": "2026-05-14T08:13:00.000Z",
+      "depends_on": ["implement"],
+      "output": "All 5 ACs satisfied. No regressions: existing tabs (Agents, Skills, Epics, History) untouched. No polling introduced."
+    },
+    {
+      "id": "execute-test",
+      "agent": "tester",
+      "task": "Run npm run compile; verify zero TypeScript errors",
+      "status": "done",
+      "started_at": "2026-05-14T08:13:00.000Z",
+      "completed_at": "2026-05-14T08:13:30.000Z",
+      "depends_on": ["review"],
+      "output": "npm run compile exited 0, zero errors"
+    },
+    {
+      "id": "release",
+      "agent": "releaser",
+      "task": "No deployment step for a VS Code extension change — mark complete after compile passes",
+      "status": "done",
+      "started_at": "2026-05-14T08:13:30.000Z",
+      "completed_at": "2026-05-14T08:13:31.000Z",
+      "depends_on": ["execute-test"],
+      "output": "Extension ships on next manual package/publish cycle"
+    },
+    {
+      "id": "monitor",
+      "agent": "monitor",
+      "task": "Verify watcher chain: .task-board.json → BuilderPanel.refreshAll; .agent-log.jsonl → BuilderPanel.refreshAll",
+      "status": "done",
+      "started_at": "2026-05-14T08:13:31.000Z",
+      "completed_at": "2026-05-14T08:13:45.000Z",
+      "depends_on": ["release"],
+      "output": "Grep confirms BuilderPanel.refreshAll is called in both onBoardChange (line 34) and onLogChange (line 40) in extension.ts. No polling."
+    },
+    {
+      "id": "doc-sync",
+      "agent": "doc-writer",
+      "task": "Append completion summary to .agent-log.jsonl",
+      "status": "done",
+      "started_at": "2026-05-14T08:13:45.000Z",
+      "completed_at": "2026-05-14T08:14:00.000Z",
+      "depends_on": ["monitor"],
+      "output": "Summary appended to .agent-log.jsonl"
+    }
+  ]
+}

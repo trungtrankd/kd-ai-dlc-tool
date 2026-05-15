@@ -38,8 +38,6 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     webviewView.webview.onDidReceiveMessage(async (msg: { command: string; epicId?: string }) => {
       switch (msg.command) {
         case 'runPipeline':
-          vscode.commands.executeCommand('agentDashboard.runPipeline');
-          break;
         case 'runFullPipeline':
           vscode.commands.executeCommand('agentDashboard.runAidlcFullPipeline');
           break;

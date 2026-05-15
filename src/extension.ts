@@ -5,8 +5,7 @@ import { createFileWatchers } from './watchers/fileWatchers';
 import { DashboardPanel } from './panels/DashboardPanel';
 import { BuilderPanel } from './panels/BuilderPanel';
 import { ActivityFeedPanel } from './panels/ActivityFeedPanel';
-import { StoryLibraryPanel } from './panels/StoryLibraryPanel';
-import { runPipeline } from './commands/runPipeline';
+import { runPipeline, cancelPipeline } from './commands/runPipeline';
 import { clearBoard } from './commands/clearBoard';
 import { importTaiga } from './commands/importTaiga';
 import { importAidlcTemplate } from './commands/importAidlcTemplate';
@@ -38,6 +37,7 @@ export function activate(context: vscode.ExtensionContext): void {
       sidebarProvider.sendNewLogEntries();
       DashboardPanel.postNewEntries(workspaceRoot);
       ActivityFeedPanel.postNewEntries(workspaceRoot);
+      BuilderPanel.refreshAll(workspaceRoot);
     },
     onMailChange: () => {
       sidebarProvider.sendStories();
@@ -67,14 +67,6 @@ export function activate(context: vscode.ExtensionContext): void {
       ActivityFeedPanel.createOrShow(context.extensionUri, workspaceRoot),
     ),
 
-    vscode.commands.registerCommand('agentDashboard.openStoryLibrary', () =>
-      StoryLibraryPanel.createOrShow(context.extensionUri, workspaceRoot, statusBar),
-    ),
-
-    vscode.commands.registerCommand('agentDashboard.runPipeline', () =>
-      runPipeline(workspaceRoot, statusBar),
-    ),
-
     vscode.commands.registerCommand('agentDashboard.runAidlcFullPipeline', () =>
       runAidlcFullPipeline(workspaceRoot, statusBar),
     ),
@@ -87,11 +79,13 @@ export function activate(context: vscode.ExtensionContext): void {
       continueAidlcPipeline(workspaceRoot, statusBar),
     ),
 
-    vscode.commands.registerCommand('agentDashboard.clearBoard', () => {
-      const dummy = { refresh: () => {} } as unknown as import('./providers/TaskBoardProvider').TaskBoardProvider;
-      const dummyMail = { refresh: () => {} } as unknown as import('./providers/MailboxProvider').MailboxProvider;
-      clearBoard(workspaceRoot, dummy, dummyMail, statusBar);
-    }),
+    vscode.commands.registerCommand('agentDashboard.cancelPipeline', () =>
+      cancelPipeline(statusBar),
+    ),
+
+    vscode.commands.registerCommand('agentDashboard.clearBoard', () =>
+      clearBoard(workspaceRoot, statusBar),
+    ),
 
     vscode.commands.registerCommand('agentDashboard.importTaiga', () =>
       importTaiga(workspaceRoot),
@@ -114,6 +108,12 @@ export function activate(context: vscode.ExtensionContext): void {
       sidebarProvider.sendBoard();
       DashboardPanel.refreshBoard(workspaceRoot);
     }),
+
+    // Keep runPipeline as an alias for runAidlcFullPipeline so any stored
+    // keybindings or external callers still work
+    vscode.commands.registerCommand('agentDashboard.runPipeline', () =>
+      runPipeline(workspaceRoot, statusBar),
+    ),
   );
 }
 

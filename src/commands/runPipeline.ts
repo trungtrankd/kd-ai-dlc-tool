@@ -4,6 +4,21 @@ import * as path from 'path';
 import { findClaude } from '../utils/claudeFinder';
 import { PipelineStatusBar } from '../statusBar/pipelineStatusBar';
 
+// Track the currently running pipeline terminal so it can be cancelled
+let _activeTerminal: vscode.Terminal | undefined;
+
+export function isRunning(): boolean {
+  return _activeTerminal !== undefined;
+}
+
+export function cancelPipeline(statusBar?: PipelineStatusBar): void {
+  if (_activeTerminal) {
+    _activeTerminal.dispose();
+    _activeTerminal = undefined;
+  }
+  statusBar?.setState('idle');
+}
+
 function shellQuote(value: string): string {
   if (process.platform === 'win32') {
     return `"${value.replace(/"/g, '\\"')}"`;
@@ -27,22 +42,18 @@ function savePromptFile(workspaceRoot: string, story: string): string {
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
   const filename = `prompt-${timestamp}.md`;
   fs.writeFileSync(path.join(runsDir, filename), story, 'utf8');
-  // Return relative path — terminal cwd is always workspaceRoot
   return path.join('.aidlc', 'runs', filename);
 }
 
 /**
- * Prompts the user for a user story (or uses a pre-filled one from the Story Library),
- * then launches the Claude pipeline in an integrated terminal.
+ * Core execution engine used by all pipeline commands.
+ * `prefillStory` must be a fully-formed AIDLC prompt (from aidlcPrompts.ts).
  */
 export async function runPipeline(
   workspaceRoot: string,
   statusBar: PipelineStatusBar,
   prefillStory?: string,
 ): Promise<void> {
-  // Always use the currently active workspace folder so the command stays
-  // correct after the user switches projects, even if this closure was
-  // created in a previous workspace session.
   const effectiveRoot =
     vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? workspaceRoot;
 
@@ -54,9 +65,7 @@ export async function runPipeline(
       ignoreFocusOut: true,
     }));
 
-  if (!story?.trim()) {
-    return;
-  }
+  if (!story?.trim()) { return; }
 
   const config = vscode.workspace.getConfiguration('agentDashboard');
   const claudePath = findClaude(config.get<string>('claudePath'));
@@ -73,10 +82,7 @@ export async function runPipeline(
     { modal: true },
     'Run Pipeline',
   );
-
-  if (confirm !== 'Run Pipeline') {
-    return;
-  }
+  if (confirm !== 'Run Pipeline') { return; }
 
   let relativePromptPath: string;
   try {
@@ -88,12 +94,25 @@ export async function runPipeline(
     return;
   }
 
+  // Dispose any previous terminal so there's never more than one active
+  if (_activeTerminal) { _activeTerminal.dispose(); }
+
   const terminal = vscode.window.createTerminal({
     name: 'Agent Pipeline',
     cwd: effectiveRoot,
   });
-  terminal.show(true);
+  _activeTerminal = terminal;
 
+  // Clean up reference when the user closes the terminal manually
+  const disposeListener = vscode.window.onDidCloseTerminal((t) => {
+    if (t === _activeTerminal) {
+      _activeTerminal = undefined;
+      statusBar.update();
+      disposeListener.dispose();
+    }
+  });
+
+  terminal.show(true);
   terminal.sendText(pipelineCommand(claudePath, relativePromptPath), true);
   statusBar.setState('running');
 }

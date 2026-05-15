@@ -5,12 +5,15 @@ export interface Task {
   status: 'pending' | 'in_progress' | 'done' | 'blocked' | 'failed';
   depends_on: string[];
   output?: string;
+  started_at?: string;
+  completed_at?: string;
 }
 
 export interface TaskBoard {
   feature: string;
   created_at: string;
   tasks: Task[];
+  story?: string;
 }
 
 export interface LogEntry {

@@ -1,0 +1,17 @@
+{"ts":"2026-05-14T08:00:00.000Z","agent":"planner","type":"start","msg":"Reading story-001-pipeline-status-dashboard.md and codebase to produce plan"}
+{"ts":"2026-05-14T08:01:00.000Z","agent":"planner","type":"progress","msg":"Identified 3 files to change: src/types.ts, src/panels/BuilderPanel.ts, src/extension.ts"}
+{"ts":"2026-05-14T08:02:00.000Z","agent":"planner","type":"done","msg":"Plan complete — no polling; watcher-driven refresh; log entries bundled into init message"}
+{"ts":"2026-05-14T08:02:00.000Z","agent":"designer","type":"start","msg":"Designing step-card status indicators, spinner, elapsed-time, and log-strip UI"}
+{"ts":"2026-05-14T08:03:30.000Z","agent":"designer","type":"progress","msg":"CSS plan: .step-in_progress border-teal+spinner, .step-done border-green, .step-failed border-red; .wf-active-log strip; progress label"}
+{"ts":"2026-05-14T08:04:00.000Z","agent":"designer","type":"done","msg":"Design spec complete"}
+{"ts":"2026-05-14T08:04:00.000Z","agent":"tester","type":"start","msg":"Writing 5 acceptance test scenarios from story ACs"}
+{"ts":"2026-05-14T08:05:00.000Z","agent":"tester","type":"progress","msg":"AC1: board watcher fires → renderWorkflows re-runs → step status updates without polling. AC2: in_progress step → spinner + latest log. AC3: done step → green check + elapsed. AC4: failed step → red X + output. AC5: all done → bar at 100%"}
+{"ts":"2026-05-14T08:05:30.000Z","agent":"tester","type":"done","msg":"Test plan written, compile check is the automated gate"}
+{"ts":"2026-05-14T08:05:30.000Z","agent":"developer","type":"start","msg":"Implementing: types.ts (started_at/completed_at), BuilderPanel.ts (logs in sendAllData + renderWorkflows overhaul), extension.ts (onLogChange → BuilderPanel.refreshAll)"}
+{"ts":"2026-05-14T08:12:00.000Z","agent":"developer","type":"done","msg":"Implementation complete — 3 files changed, 0 new files created"}
+{"ts":"2026-05-14T08:12:00.000Z","agent":"reviewer","type":"start","msg":"Reviewing diff against all 5 story acceptance criteria"}
+{"ts":"2026-05-14T08:13:00.000Z","agent":"reviewer","type":"done","msg":"PASS: AC1 watcher-driven ✓, AC2 spinner+log ✓, AC3 green check+elapsed ✓, AC4 red X ✓, AC5 100% bar ✓. No regressions in other tabs."}
+{"ts":"2026-05-14T08:13:00.000Z","agent":"tester","type":"start","msg":"Running npm run compile"}
+{"ts":"2026-05-14T08:13:30.000Z","agent":"tester","type":"done","msg":"npm run compile: exit 0, zero TypeScript errors"}
+{"ts":"2026-05-14T08:13:45.000Z","agent":"monitor","type":"done","msg":"Watcher chain verified — BuilderPanel.refreshAll fires on both .task-board.json and .agent-log.jsonl changes (extension.ts lines 34 and 40)"}
+{"ts":"2026-05-14T08:14:00.000Z","agent":"doc-writer","type":"done","msg":"story-001 COMPLETE — files changed: src/types.ts, src/panels/BuilderPanel.ts, src/extension.ts, .task-board.json, .agent-log.jsonl. Compile: 0 errors. All ACs satisfied."}

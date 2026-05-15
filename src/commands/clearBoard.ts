@@ -1,18 +1,14 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { TaskBoardProvider } from '../providers/TaskBoardProvider';
-import { MailboxProvider } from '../providers/MailboxProvider';
 import { PipelineStatusBar } from '../statusBar/pipelineStatusBar';
 
 /**
  * Deletes .task-board.json, .agent-log.jsonl, and all mailbox inbox JSON files,
- * then refreshes the providers and status bar.
+ * then refreshes the status bar and all open panels.
  */
 export async function clearBoard(
   workspaceRoot: string,
-  taskBoardProvider: TaskBoardProvider,
-  mailboxProvider: MailboxProvider,
   statusBar: PipelineStatusBar,
 ): Promise<void> {
   const confirm = await vscode.window.showWarningMessage(
@@ -21,52 +17,36 @@ export async function clearBoard(
     'Clear',
   );
 
-  if (confirm !== 'Clear') {
-    return;
-  }
+  if (confirm !== 'Clear') { return; }
 
   const filesToDelete = [
     path.join(workspaceRoot, '.task-board.json'),
     path.join(workspaceRoot, '.agent-log.jsonl'),
   ];
 
-  // Collect all mailbox inbox JSON files
   const mailboxDir = path.join(workspaceRoot, 'mailbox');
   if (fs.existsSync(mailboxDir)) {
     try {
-      const agents = fs.readdirSync(mailboxDir);
-      for (const agent of agents) {
+      for (const agent of fs.readdirSync(mailboxDir)) {
         const inboxDir = path.join(mailboxDir, agent, 'inbox');
         if (fs.existsSync(inboxDir)) {
           try {
-            const files = fs.readdirSync(inboxDir).filter((f) => f.endsWith('.json'));
-            for (const file of files) {
+            for (const file of fs.readdirSync(inboxDir).filter((f) => f.endsWith('.json'))) {
               filesToDelete.push(path.join(inboxDir, file));
             }
-          } catch {
-            // skip unreadable inbox dirs
-          }
+          } catch { /* skip */ }
         }
       }
-    } catch {
-      // skip if mailbox root is unreadable
-    }
+    } catch { /* skip */ }
   }
 
   let deleted = 0;
   for (const filePath of filesToDelete) {
     try {
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-        deleted++;
-      }
-    } catch {
-      // skip files we can't delete
-    }
+      if (fs.existsSync(filePath)) { fs.unlinkSync(filePath); deleted++; }
+    } catch { /* skip */ }
   }
 
-  taskBoardProvider.refresh();
-  mailboxProvider.refresh();
   statusBar.update();
 
   vscode.window.showInformationMessage(

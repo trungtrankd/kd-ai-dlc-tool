@@ -92,26 +92,6 @@ skills:
     path: ./.aidlc/skills/monitor.md
   - id: doc-sync
     path: ./.aidlc/skills/doc-sync.md
-environment: {}
-slash_commands:
-  - name: /plan
-    agent: plan
-  - name: /design
-    agent: design
-  - name: /test-plan
-    agent: test-plan
-  - name: /implement
-    agent: implement
-  - name: /review
-    agent: review
-  - name: /execute-test
-    agent: execute-test
-  - name: /release
-    agent: release
-  - name: /monitor
-    agent: monitor
-  - name: /doc-sync
-    agent: doc-sync
 pipelines:
   - id: sdlc-full
     steps:
@@ -125,8 +105,3 @@ pipelines:
       - monitor
       - doc-sync
     on_failure: stop
-sidebar:
-  views:
-    - type: agents-list
-    - type: skills-list
-    - type: pipelines-list
