@@ -8,7 +8,8 @@
     "lib": ["ES2020"],
     "sourceMap": true,
     "esModuleInterop": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "jsx": "react-jsx"
   },
-  "exclude": ["node_modules", ".vscode-test"]
+  "exclude": ["node_modules", ".vscode-test", "src/webview/**/*", "vite.config.ts", "tsconfig.webview.json", "tailwind.config.js", "postcss.config.js"]
 }

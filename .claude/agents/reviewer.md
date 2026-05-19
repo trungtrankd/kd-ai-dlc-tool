@@ -2,7 +2,7 @@
 name: reviewer
 description: Code reviewer agent. Use after implementation completes. Validates the diff against the PRD acceptance criteria, tech design, and test plan. Issues a structured verdict (APPROVE / APPROVE WITH COMMENTS / CHANGES REQUESTED) with file:line evidence for every finding.
 tools: Read, Bash, Glob, Grep
-model: claude-opus-4-6
+model: claude-opus-4-7
 permissionMode: bypassPermissions
 ---
 

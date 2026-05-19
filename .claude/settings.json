@@ -4,7 +4,14 @@
       "Bash(awk '{print NR\". \"$2}')",
       "Bash(npx vsce *)",
       "Bash(git -C /Users/nb230601/Documents/kd-ai-dlc-tool diff src/panels/BuilderPanel.ts)",
-      "Bash(git -C /Users/nb230601/Documents/kd-ai-dlc-tool show HEAD:src/panels/BuilderPanel.ts)"
+      "Bash(git -C /Users/nb230601/Documents/kd-ai-dlc-tool show HEAD:src/panels/BuilderPanel.ts)",
+      "Bash(node -e \"const p=require\\('./package.json'\\); console.log\\(p.name, p.version\\)\")",
+      "Bash(cp /Users/nb230601/Documents/kd-ai-dlc-tool/templates/aidlc/agents/*.md /Users/nb230601/Documents/kd-ai-dlc-tool/.claude/agents/ && ls /Users/nb230601/Documents/kd-ai-dlc-tool/.claude/agents/)",
+      "Bash(node -e \"const p=require\\('./package.json'\\); console.log\\(JSON.stringify\\({activationEvents: p.activationEvents, viewsContainers: p.contributes?.viewsContainers, views: p.contributes?.views}, null, 2\\)\\)\")",
+      "Bash(code --install-extension /Users/nb230601/Documents/kd-ai-dlc-tool/kd-ai-dlc-tool-1.0.0.vsix --force)"
+    ],
+    "additionalDirectories": [
+      "/Users/nb230601/Documents/kd-ai-dlc-tool/templates/aidlc/agents"
     ]
   }
 }

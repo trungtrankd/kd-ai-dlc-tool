@@ -47,7 +47,10 @@
       { "command": "agentDashboard.clearBoard",            "title": "AIDLC: Clear Board",            "icon": "$(trash)" },
       { "command": "agentDashboard.importTaiga",           "title": "AIDLC: Import from Taiga",     "icon": "$(cloud-download)" },
       { "command": "agentDashboard.importAidlcTemplate",   "title": "AIDLC: Import Template",       "icon": "$(package)" },
-      { "command": "agentDashboard.refreshTaskBoard",      "title": "AIDLC: Refresh",               "icon": "$(refresh)" }
+      { "command": "agentDashboard.refreshTaskBoard",      "title": "AIDLC: Refresh",               "icon": "$(refresh)" },
+      { "command": "agentDashboard.addAgent",               "title": "AIDLC: Add Agent",             "icon": "$(add)" },
+      { "command": "agentDashboard.addSkill",               "title": "AIDLC: Add Skill",             "icon": "$(add)" },
+      { "command": "agentDashboard.showWorkspaceConfig",    "title": "AIDLC: Show Workspace Config", "icon": "$(list-tree)" }
     ],
     "menus": {
       "view/title": [
@@ -69,7 +72,10 @@
         { "command": "agentDashboard.cancelPipeline" },
         { "command": "agentDashboard.clearBoard" },
         { "command": "agentDashboard.importTaiga" },
-        { "command": "agentDashboard.importAidlcTemplate" }
+        { "command": "agentDashboard.importAidlcTemplate" },
+        { "command": "agentDashboard.addAgent" },
+        { "command": "agentDashboard.addSkill" },
+        { "command": "agentDashboard.showWorkspaceConfig" }
       ]
     },
     "configuration": {
@@ -86,13 +92,30 @@
   "scripts": {
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "bundle": "node esbuild.js",
-    "vscode:prepublish": "node esbuild.js --production"
+    "build:webview": "vite build",
+    "build:ext": "node esbuild.js",
+    "bundle": "npm run build:webview && node esbuild.js",
+    "vscode:prepublish": "npm run build:webview && node esbuild.js --production"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^2.5.2",
+    "lucide-react": "^0.441.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
+    "@types/react": "^18.3.1",
+    "@types/react-dom": "^18.3.1",
     "@types/vscode": "^1.85.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.20",
     "esbuild": "^0.20.0",
-    "typescript": "^5.0.0"
-  }
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.13",
+    "typescript": "^5.0.0",
+    "vite": "^5.4.6"
+  },
+  "files": ["dist/**", "out/webviews/**", "templates/**", "media/**", "package.json", "README.md"]
 }

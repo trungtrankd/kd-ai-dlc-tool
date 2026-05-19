@@ -15,3 +15,9 @@
 {"ts":"2026-05-14T08:13:30.000Z","agent":"tester","type":"done","msg":"npm run compile: exit 0, zero TypeScript errors"}
 {"ts":"2026-05-14T08:13:45.000Z","agent":"monitor","type":"done","msg":"Watcher chain verified — BuilderPanel.refreshAll fires on both .task-board.json and .agent-log.jsonl changes (extension.ts lines 34 and 40)"}
 {"ts":"2026-05-14T08:14:00.000Z","agent":"doc-writer","type":"done","msg":"story-001 COMPLETE — files changed: src/types.ts, src/panels/BuilderPanel.ts, src/extension.ts, .task-board.json, .agent-log.jsonl. Compile: 0 errors. All ACs satisfied."}
+{"ts":"2026-05-19T04:51:53Z","agent":"developer-frontend","type":"start","msg":"Starting: React 18 + Tailwind CSS + Vite migration for VS Code extension webviews"}
+{"ts":"2026-05-19T04:52:23Z","agent":"developer-frontend","type":"read","msg":"Reading all existing panel files and project structure"}
+{"ts":"2026-05-19T04:52:34Z","agent":"developer-frontend","type":"progress","msg":"Updated package.json: added React 18, Tailwind, Vite deps and scripts"}
+{"ts":"2026-05-19T07:24:16Z","agent":"developer-frontend","type":"decision","msg":"IIFE + multiple entries not supported by Vite. Switching to ES format with type=module scripts in webview HTML"}
+{"ts":"2026-05-19T07:27:13Z","agent":"developer-frontend","type":"progress","msg":"Build verified: Vite produces sidebar.js/css, workspace.js/css, activityFeed.js/css + shared chunk. VSIX packages at 1.94MB"}
+{"ts":"2026-05-19T07:27:28Z","agent":"developer-frontend","type":"done","msg":"React 18 + Tailwind CSS + Vite migration complete. 3 webviews (sidebar, workspace, activityFeed) built to out/webviews/ using Vite multi-page build. All 4 host panels updated to load React bundles. tsc and vsce package both pass."}

@@ -5,7 +5,7 @@ agents:
     name: Plan
     skill: plan
     agent: product-owner
-    model: claude-opus-4-7
+    model: claude-opus-4-6
     description: Scaffold the epic and write the PRD.
     inputs: Jira ticket, business context, Figma designs
     outputs: Epic doc + PRD with measurable acceptance criteria
@@ -14,7 +14,7 @@ agents:
     name: Design
     skill: design
     agent: tech-lead
-    model: claude-opus-4-7
+    model: claude-opus-4-6
     description: Design the implementation approach.
     inputs: PRD, existing code, dependency graph
     outputs: Architecture, API contract, DI plan, file impact list
@@ -41,7 +41,7 @@ agents:
     name: Review
     skill: review
     agent: reviewer
-    model: claude-opus-4-7
+    model: claude-opus-4-6
     description: Review the diff against the PRD + tech design.
     inputs: Git diff, PRD, tech design, test plan
     outputs: AC validation table, architecture check, verdict (pass / reject)

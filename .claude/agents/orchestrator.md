@@ -2,7 +2,7 @@
 name: orchestrator
 description: AIDLC Pipeline Orchestrator. Reads .aidlc/workspace.yaml to drive the full SDLC pipeline end-to-end. Invoke with a story or feature description to run all steps automatically. Resumes from the last completed step if .task-board.json already exists.
 tools: Read, Write, Bash, Glob, Grep, Agent
-model: claude-opus-4-6
+model: claude-opus-4-7
 permissionMode: bypassPermissions
 ---
 
@@ -29,7 +29,7 @@ Each pipeline step maps to a specialist agent. Read the `agents` array in `works
 | design | tech-lead | Architecture, API contracts, file impact list |
 | test-plan | qa-engineer | Test cases (unit, integration, UI, performance) |
 | implement | tech-lead | Code on feature branch via specialist sub-agents |
-| review | reviewer | AC validation table + architecture verdict |
+| review | product-owner | AC validation table + architecture verdict |
 | execute-test | qa-engineer | Test execution report + tester sign-off |
 | release | developer-devops | Release tag, changelog, store notes |
 | monitor | developer-devops | Post-release health report, go/hotfix decision |

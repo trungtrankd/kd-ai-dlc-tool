@@ -38,15 +38,18 @@ This is a VS Code extension that orchestrates Claude Code agents through an AI-p
 ### Source layout
 
 - **[src/extension.ts](src/extension.ts)** — activation entry point; registers all commands, wires file watchers, and creates the sidebar
-- **[src/panels/](src/panels/)** — four `WebviewPanel` classes (`BuilderPanel`, `DashboardPanel`, `ActivityFeedPanel`, `StoryLibraryPanel`). Each is a singleton (`static current`) and embeds its complete HTML/CSS/JS inline as a template literal
+- **[src/panels/](src/panels/)** — three `WebviewPanel` classes (`BuilderPanel`, `DashboardPanel`, `ActivityFeedPanel`). Each is a singleton (`static current`) and embeds its complete HTML/CSS/JS inline as a template literal
 - **[src/providers/SidebarProvider.ts](src/providers/SidebarProvider.ts)** — `WebviewViewProvider` for the Activity Bar sidebar (compact status + quick-actions)
-- **[src/commands/](src/commands/)** — one file per VS Code command; `runPipeline` is the core execution entry point
+- **[src/commands/](src/commands/)** — one file per VS Code command; `runPipeline` is the core execution entry point; `importAidlcTemplate` copies the bundled `templates/aidlc/` scaffold into the user's workspace
 - **[src/data/](src/data/)** — pure read helpers for workspace files (`taskBoardReader`, `logReader`, `agentReader`, `storyLibrary`, `mailboxReader`)
+- **[src/statusBar/pipelineStatusBar.ts](src/statusBar/pipelineStatusBar.ts)** — status bar item that infers pipeline state (idle/running/done/error) from `.task-board.json`
 - **[src/utils/claudeFinder.ts](src/utils/claudeFinder.ts)** — locates the `claude` CLI binary (config override → PATH → common install locations)
 - **[src/utils/aidlcPrompts.ts](src/utils/aidlcPrompts.ts)** — builds the prompt strings piped to Claude for each pipeline mode (full, continue, review, single-step)
+- **[src/utils/workspaceYamlReader.ts](src/utils/workspaceYamlReader.ts)** — custom line-by-line YAML parser for `.aidlc/workspace.yaml` (no external YAML library); also contains write helpers for pipeline CRUD
+- **[src/utils/taigaParser.ts](src/utils/taigaParser.ts)** — fetches a Taiga user story via the Taiga REST API (browser URL → slug resolution → story fetch) and converts it to a structured markdown story file
 - **[src/watchers/fileWatchers.ts](src/watchers/fileWatchers.ts)** — creates VS Code `FileSystemWatcher` instances for `.task-board.json`, `.agent-log.jsonl`, `mailbox/**/*.json`, and `.claude/agents/*.md`
 - **[src/types.ts](src/types.ts)** — shared TypeScript interfaces (`Task`, `TaskBoard`, `LogEntry`, `MailMessage`, `StoryMeta`)
-- **[templates/aidlc/](templates/aidlc/)** — bundled template that gets copied into the user's workspace as `.aidlc/` when they click "Load Template". Contains `workspace.yaml`, 9 skill prompt files, and 10 agent definition files
+- **[templates/aidlc/](templates/aidlc/)** — bundled template that gets copied into the user's workspace as `.aidlc/` when they click "Load Template". Contains `workspace.yaml`, 9 skill prompt files, and 11 agent definition files
 
 ### Panel communication pattern
 
@@ -60,6 +63,25 @@ The 9-step pipeline is defined in `BuilderPanel.ts` (`AIDLC_SKILLS`) and mirrore
 |------|-------|
 | plan, design, review | claude-opus-4-7 |
 | test-plan, implement, execute-test, release, monitor, doc-sync | claude-sonnet-4-6 |
+
+### VS Code commands and settings
+
+Registered commands (all prefixed `agentDashboard.`):
+
+| Command | Title |
+|---------|-------|
+| `openBuilder` | AIDLC: Open Builder |
+| `openDashboard` | AIDLC: Open Epics |
+| `openActivityFeed` | AIDLC: Open Activity Feed |
+| `runAidlcFullPipeline` | AIDLC: Start Epic |
+| `continueAidlcPipeline` | AIDLC: Continue Pipeline |
+| `reviewCurrentWork` | AIDLC: Review Current Work |
+| `cancelPipeline` | AIDLC: Cancel Pipeline |
+| `clearBoard` | AIDLC: Clear Board |
+| `importAidlcTemplate` | AIDLC: Import Template |
+| `importTaiga` | AIDLC: Import from Taiga |
+
+One user-facing configuration property: `agentDashboard.claudePath` (string, default `""`) — explicit path to the `claude` binary; leave empty to auto-detect.
 
 ### Bundling
 

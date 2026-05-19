@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import * as path from 'path';
 import { readLogEntries } from '../data/logReader';
 import { getNonce } from '../utils/getNonce';
 
@@ -54,7 +53,7 @@ export class ActivityFeedPanel {
       column ?? vscode.ViewColumn.One,
       {
         enableScripts: true,
-        localResourceRoots: [vscode.Uri.joinPath(extensionUri, 'media')],
+        localResourceRoots: [vscode.Uri.joinPath(extensionUri, 'out', 'webviews')],
         retainContextWhenHidden: true,
       },
     );
@@ -99,31 +98,31 @@ export class ActivityFeedPanel {
   }
 
   private _getHtmlForWebview(webview: vscode.Webview): string {
-    const cssUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, 'media', 'activityFeed.css'),
-    );
-    const jsUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, 'media', 'activityFeed.js'),
-    );
+    const base = vscode.Uri.joinPath(this._extensionUri, 'out', 'webviews');
+    const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(base, 'activityFeed.js'));
+    const cssUri = webview.asWebviewUri(vscode.Uri.joinPath(base, 'activityFeed.css'));
     const nonce = getNonce();
+    const csp = [
+      `default-src 'none'`,
+      `style-src ${webview.cspSource} 'unsafe-inline'`,
+      `script-src ${webview.cspSource} 'nonce-${nonce}'`,
+      `script-src-elem ${webview.cspSource} 'nonce-${nonce}'`,
+      `font-src ${webview.cspSource}`,
+      `img-src ${webview.cspSource} data:`,
+    ].join('; ');
 
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="Content-Security-Policy"
-        content="default-src 'none';
-                 style-src ${webview.cspSource} 'nonce-${nonce}';
-                 script-src 'nonce-${nonce}';">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="${cssUri}">
-  <title>Agent Activity Feed</title>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="${csp}">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Activity Feed</title>
+<link rel="stylesheet" href="${cssUri}">
 </head>
 <body>
-  <div id="log-list">
-    <div class="empty-state">No activity yet. Start a pipeline to see logs here.</div>
-  </div>
-  <script nonce="${nonce}" src="${jsUri}"></script>
+<div id="root"></div>
+<script type="module" src="${scriptUri}"></script>
 </body>
 </html>`;
   }

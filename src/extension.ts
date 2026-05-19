@@ -12,6 +12,9 @@ import { importAidlcTemplate } from './commands/importAidlcTemplate';
 import { runAidlcFullPipeline } from './commands/runAidlcFullPipeline';
 import { reviewCurrentWork } from './commands/reviewCurrentWork';
 import { continueAidlcPipeline } from './commands/continueAidlcPipeline';
+import { addAgent } from './commands/addAgent';
+import { addSkill } from './commands/addSkill';
+import { showWorkspaceConfig } from './commands/showWorkspaceConfig';
 
 export function activate(context: vscode.ExtensionContext): void {
   const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
@@ -113,6 +116,18 @@ export function activate(context: vscode.ExtensionContext): void {
     // keybindings or external callers still work
     vscode.commands.registerCommand('agentDashboard.runPipeline', () =>
       runPipeline(workspaceRoot, statusBar),
+    ),
+
+    vscode.commands.registerCommand('agentDashboard.addAgent', () =>
+      addAgent(workspaceRoot),
+    ),
+
+    vscode.commands.registerCommand('agentDashboard.addSkill', () =>
+      addSkill(workspaceRoot),
+    ),
+
+    vscode.commands.registerCommand('agentDashboard.showWorkspaceConfig', () =>
+      showWorkspaceConfig(workspaceRoot),
     ),
   );
 }

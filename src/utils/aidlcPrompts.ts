@@ -13,19 +13,13 @@ const FULL_PIPELINE_STEPS = [
 export function buildFullPipelinePrompt(story: string): string {
   return `You are the AIDLC orchestrator for this workspace.
 
-Run the full AIDLC workflow for the story below.
+Read and follow the instructions in \`.claude/agents/orchestrator.md\` to run the full AIDLC pipeline for the story below.
 
-Workflow:
-${FULL_PIPELINE_STEPS.map((step, index) => `${index + 1}. ${step}`).join('\n')}
-
-Operating rules:
-- Read .aidlc/workspace.yaml, .aidlc/skills/*.md, .claude/agents/*.md, CLAUDE.md, and relevant repository files before acting.
-- Create or update .task-board.json with concrete tasks, owner agents, dependencies, and statuses.
-- Append meaningful progress events to .agent-log.jsonl.
-- Use mailbox/<agent>/inbox/*.json for agent handoffs when useful.
-- Keep changes scoped to the story and repository conventions.
-- Run relevant verification commands when practical.
-- End with a concise summary of files changed, tests run, review findings, and remaining risks.
+Key files to read first (in order):
+1. \`.claude/agents/orchestrator.md\` — your complete operating instructions, step routing table, and execution loop
+2. \`.aidlc/workspace.yaml\` — pipeline definition, agent assignments, skill file paths, on_failure policy
+3. \`.task-board.json\` — resume state; skip any step already marked done
+4. \`stories/*.md\` (if present) — active story/epic; use as the source of truth for requirements
 
 Story:
 ${story.trim()}
@@ -78,7 +72,7 @@ Operating rules:
 `;
 }
 
-export function buildRunStepPrompt(step: string): string {
+export function buildRunStepPrompt(step: string, feedback?: string): string {
   return `You are the AIDLC ${step} agent for this workspace.
 
 Run ONLY the "${step}" step of the AIDLC pipeline.
@@ -90,7 +84,12 @@ Context to read first:
 - .agent-log.jsonl (recent activity)
 - stories/*.md (active story/epic)
 - Relevant source files as needed
+${feedback ? `
+## Feedback from previous run
+${feedback}
 
+Address this feedback explicitly in your output.
+` : ''}
 Operating rules:
 - Execute only the "${step}" step — do not cascade into other steps.
 - Read the skill file at .aidlc/skills/${step}.md for detailed instructions.
@@ -104,25 +103,15 @@ Operating rules:
 export function buildContinuePipelinePrompt(): string {
   return `You are the AIDLC orchestrator for this workspace.
 
-Continue the current AIDLC pipeline from the existing workspace state.
+Read and follow the instructions in \`.claude/agents/orchestrator.md\` to resume the current AIDLC pipeline from the existing workspace state.
 
-Context to inspect:
-- .task-board.json
-- .agent-log.jsonl
-- mailbox/**/*.json
-- stories/*.md
-- .aidlc/workspace.yaml
-- .aidlc/skills/*.md
-- .claude/agents/*.md
-- git status and relevant source files
+Key files to read first (in order):
+1. \`.claude/agents/orchestrator.md\` — your complete operating instructions, including the resume logic
+2. \`.task-board.json\` — current pipeline state; identify the next pending, blocked, or failed step
+3. \`.aidlc/workspace.yaml\` — pipeline definition and agent assignments
+4. \`.agent-log.jsonl\` (tail) — recent activity for situational awareness
+5. \`mailbox/pipeline/*/\` — artifacts produced by completed steps (pass as context to the next step)
 
-Operating rules:
-- Do not restart completed work unless evidence shows it is incorrect.
-- Pick the next pending, blocked, or failed task with the highest leverage.
-- If the board is missing, create one from the active story/context.
-- Update .task-board.json and .agent-log.jsonl as work progresses.
-- Use mailbox handoffs for cross-agent coordination when useful.
-- Run verification relevant to the task you complete.
-- End with what changed, current pipeline state, and the next recommended task.
+Do not restart steps already marked done. Pick up from the first step that is not done.
 `;
 }
