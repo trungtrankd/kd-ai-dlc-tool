@@ -1,97 +1,98 @@
 {
-  "feature": "Pipeline Status Dashboard with Real-time Progress",
-  "story": "stories/story-001-pipeline-status-dashboard.md",
-  "created_at": "2026-05-14T08:00:00.000Z",
+  "feature": "Add new pipeline or workflow",
+  "pipeline": "sdlc-full",
+  "story": "story: Add new pipeline or workflow to the AIDLC VS Code extension",
+  "started_at": "2026-05-19T08:00:00.000Z",
   "tasks": [
     {
       "id": "plan",
-      "agent": "planner",
-      "task": "Analyse story requirements and produce a concrete implementation plan for the real-time pipeline status dashboard",
+      "agent": "product-owner",
+      "task": "Define scope, user stories, and acceptance criteria for the Add Pipeline/Workflow CRUD feature",
       "status": "done",
-      "started_at": "2026-05-14T08:00:00.000Z",
-      "completed_at": "2026-05-14T08:02:00.000Z",
       "depends_on": [],
-      "output": "Three files to change: src/types.ts (add started_at/completed_at to Task), src/panels/BuilderPanel.ts (send logs, enhance renderWorkflows), src/extension.ts (add BuilderPanel to onLogChange)"
+      "started_at": "2026-05-19T08:01:00.000Z",
+      "completed_at": "2026-05-19T08:05:00.000Z",
+      "output": "PRD written: 17 ACs (PIPE-AC01–AC17) covering create, edit, delete, toggle on_failure, human-step prefix, empty state, error states, and validation rules"
     },
     {
       "id": "design",
-      "agent": "designer",
-      "task": "Design the enhanced step-card layout: status icons, agent label, elapsed time, active-log strip, and progress bar label",
+      "agent": "tech-lead",
+      "task": "Design the architecture for pipeline CRUD — addPipeline/editPipeline/deletePipeline in workspaceYamlReader, message handling in BuilderPanel, modal UI in WorkspaceApp.tsx",
       "status": "done",
-      "started_at": "2026-05-14T08:02:00.000Z",
-      "completed_at": "2026-05-14T08:04:00.000Z",
       "depends_on": ["plan"],
-      "output": "Step boxes gain status CSS classes (step-pending/in_progress/done/failed), spinner keyframe, log strip below step row, progress label beside bar"
+      "started_at": "2026-05-19T08:06:00.000Z",
+      "completed_at": "2026-05-19T08:15:00.000Z",
+      "output": "TECH-DESIGN.md produced — text-patch YAML strategy, 3 function contracts, BuilderPanel handler pseudocode, PipelineModal component design with validation, sequence diagram"
     },
     {
       "id": "test-plan",
-      "agent": "tester",
-      "task": "Write acceptance test scenarios that map to each AC in the story",
-      "status": "done",
-      "started_at": "2026-05-14T08:04:00.000Z",
-      "completed_at": "2026-05-14T08:05:30.000Z",
+      "agent": "qa-engineer",
+      "task": "Author acceptance scenarios for pipeline CRUD (create, edit, delete, toggle on_failure)",
+      "status": "in_progress",
       "depends_on": ["design"],
-      "output": "5 scenarios defined covering: real-time refresh, in_progress spinner+log, done checkmark+elapsed, failed error, final progress bar at 100%"
+      "started_at": "2026-05-19T08:20:00.000Z",
+      "completed_at": null,
+      "output": null
     },
     {
       "id": "implement",
       "agent": "developer",
-      "task": "Apply code changes to types.ts, BuilderPanel.ts, and extension.ts",
-      "status": "done",
-      "started_at": "2026-05-14T08:05:30.000Z",
-      "completed_at": "2026-05-14T08:12:00.000Z",
+      "task": "Implement pipeline CRUD — addPipeline/editPipeline/deletePipeline in workspaceYamlReader.ts, message handlers in BuilderPanel.ts, and the Create/Edit/Delete modal UI in WorkspaceApp.tsx",
+      "status": "pending",
       "depends_on": ["test-plan"],
-      "output": "types.ts: +started_at/completed_at on Task. BuilderPanel.ts: import readLogEntries, send logs in _sendAllData, add status CSS, rewrite renderWorkflows with task status per step/progress bar/log strip. extension.ts: BuilderPanel.refreshAll added to onLogChange."
+      "started_at": null,
+      "completed_at": null,
+      "output": null
     },
     {
       "id": "review",
-      "agent": "reviewer",
-      "task": "Review diff against story ACs and check for regressions",
-      "status": "done",
-      "started_at": "2026-05-14T08:12:00.000Z",
-      "completed_at": "2026-05-14T08:13:00.000Z",
+      "agent": "product-owner",
+      "task": "Validate implementation diff against PRD ACs; confirm CRUD operations work correctly",
+      "status": "pending",
       "depends_on": ["implement"],
-      "output": "All 5 ACs satisfied. No regressions: existing tabs (Agents, Skills, Epics, History) untouched. No polling introduced."
+      "started_at": null,
+      "completed_at": null,
+      "output": null
     },
     {
       "id": "execute-test",
-      "agent": "tester",
-      "task": "Run npm run compile; verify zero TypeScript errors",
-      "status": "done",
-      "started_at": "2026-05-14T08:13:00.000Z",
-      "completed_at": "2026-05-14T08:13:30.000Z",
+      "agent": "qa-engineer",
+      "task": "Run npm run compile and vsce package; verify no TypeScript errors",
+      "status": "pending",
       "depends_on": ["review"],
-      "output": "npm run compile exited 0, zero errors"
+      "started_at": null,
+      "completed_at": null,
+      "output": null
     },
     {
       "id": "release",
-      "agent": "releaser",
-      "task": "No deployment step for a VS Code extension change — mark complete after compile passes",
-      "status": "done",
-      "started_at": "2026-05-14T08:13:30.000Z",
-      "completed_at": "2026-05-14T08:13:31.000Z",
+      "agent": "developer-devops",
+      "task": "Package the extension as VSIX; record release artifact",
+      "status": "pending",
       "depends_on": ["execute-test"],
-      "output": "Extension ships on next manual package/publish cycle"
+      "started_at": null,
+      "completed_at": null,
+      "output": null
     },
     {
       "id": "monitor",
-      "agent": "monitor",
-      "task": "Verify watcher chain: .task-board.json → BuilderPanel.refreshAll; .agent-log.jsonl → BuilderPanel.refreshAll",
-      "status": "done",
-      "started_at": "2026-05-14T08:13:31.000Z",
-      "completed_at": "2026-05-14T08:13:45.000Z",
+      "agent": "developer-devops",
+      "task": "Post-build static verification: VSIX exists, no regressions in compile output",
+      "status": "pending",
       "depends_on": ["release"],
-      "output": "Grep confirms BuilderPanel.refreshAll is called in both onBoardChange (line 34) and onLogChange (line 40) in extension.ts. No polling."
+      "started_at": null,
+      "completed_at": null,
+      "output": null
     },
     {
       "id": "doc-sync",
-      "agent": "doc-writer",
-      "task": "Append completion summary to .agent-log.jsonl",
-      "status": "done",
-      "started_at": "2026-05-14T08:13:45.000Z",
-      "completed_at": "2026-05-14T08:14:00.000Z",
+      "agent": "developer",
+      "task": "Update CLAUDE.md pipeline CRUD section to reflect what was actually built",
+      "status": "pending",
       "depends_on": ["monitor"],
-      "output": "Summary appended to .agent-log.jsonl"
+      "started_at": null,
+      "completed_at": null,
+      "output": null
     }
   ]
 }

@@ -21,3 +21,28 @@
 {"ts":"2026-05-19T07:24:16Z","agent":"developer-frontend","type":"decision","msg":"IIFE + multiple entries not supported by Vite. Switching to ES format with type=module scripts in webview HTML"}
 {"ts":"2026-05-19T07:27:13Z","agent":"developer-frontend","type":"progress","msg":"Build verified: Vite produces sidebar.js/css, workspace.js/css, activityFeed.js/css + shared chunk. VSIX packages at 1.94MB"}
 {"ts":"2026-05-19T07:27:28Z","agent":"developer-frontend","type":"done","msg":"React 18 + Tailwind CSS + Vite migration complete. 3 webviews (sidebar, workspace, activityFeed) built to out/webviews/ using Vite multi-page build. All 4 host panels updated to load React bundles. tsc and vsce package both pass."}
+{"ts":"2026-05-19T07:38:02.000Z","agent":"orchestrator","type":"start","step":"pipeline","msg":"Starting AIDLC pipeline for story-001-pipeline-status-dashboard"}
+{"ts":"2026-05-19T07:38:30.000Z","agent":"product-owner","type":"done","step":"plan","artifact":"mailbox/pipeline/plan/PRD.md","msg":"PRD written with 7 ACs and explicit edge cases"}
+{"ts":"2026-05-19T07:38:30.000Z","agent":"tech-lead","type":"start","step":"design","msg":"Designing step-card layout and watcher-driven derivation rules"}
+{"ts":"2026-05-19T07:39:00.000Z","agent":"tech-lead","type":"done","step":"design","artifact":"mailbox/pipeline/design/TECH-DESIGN.md","msg":"Tech design produced — single-file change in WorkspaceApp.tsx, no new IPC, no polling"}
+{"ts":"2026-05-19T07:39:00.000Z","agent":"qa-engineer","type":"start","step":"test-plan","msg":"Authoring acceptance scenarios for 7 ACs"}
+{"ts":"2026-05-19T07:39:30.000Z","agent":"qa-engineer","type":"done","step":"test-plan","artifact":"mailbox/pipeline/test-plan/TEST-PLAN.md","msg":"Test plan covers 5 UI scenarios, 4 unit checks, 3 lifecycle cases, 5 regression items"}
+{"ts":"2026-05-19T07:39:30.000Z","agent":"developer","type":"start","step":"implement","msg":"Editing src/webview/workspace/WorkspaceApp.tsx — step cards, latest-log strip, progress bar"}
+{"ts":"2026-05-19T07:41:00.000Z","agent":"developer","type":"done","step":"implement","artifact":"mailbox/pipeline/implement/HANDOFF.md","msg":"WorkspaceApp.tsx + workspace.css updated; tsc + vite build clean"}
+{"ts":"2026-05-19T07:41:00.000Z","agent":"tech-lead","type":"start","step":"review","msg":"Validating diff against PRD ACs and zero-polling constraint"}
+{"ts":"2026-05-19T07:41:30.000Z","agent":"tech-lead","type":"done","step":"review","artifact":"mailbox/pipeline/review/APPROVAL.md","msg":"APPROVE — all 7 ACs satisfied; zero setInterval/setTimeout in webview"}
+{"ts":"2026-05-19T07:41:30.000Z","agent":"qa-engineer","type":"start","step":"execute-test","msg":"Executing build pipeline: tsc, vite, vsce"}
+{"ts":"2026-05-19T07:42:30.000Z","agent":"qa-engineer","type":"done","step":"execute-test","artifact":"mailbox/pipeline/execute-test/TEST-SCRIPT.md","msg":"All automated gates PASS — tsc, webview tsc, vite build, vsce package"}
+{"ts":"2026-05-19T07:42:30.000Z","agent":"developer-devops","type":"start","step":"release","msg":"Packaging release"}
+{"ts":"2026-05-19T07:43:00.000Z","agent":"developer-devops","type":"done","step":"release","artifact":"mailbox/pipeline/release/RELEASE-NOTES.md","msg":"VSIX produced: kd-ai-dlc-tool-1.0.0.vsix (1.82 MB)"}
+{"ts":"2026-05-19T07:43:00.000Z","agent":"developer-devops","type":"start","step":"monitor","msg":"Post-build verification"}
+{"ts":"2026-05-19T07:43:30.000Z","agent":"developer-devops","type":"done","step":"monitor","artifact":"mailbox/pipeline/monitor/HEALTH-REPORT.md","msg":"All indicators ok; decision: Continue rollout"}
+{"ts":"2026-05-19T07:43:30.000Z","agent":"developer","type":"start","step":"doc-sync","msg":"Comparing plan vs reality across CLAUDE.md and changelog"}
+{"ts":"2026-05-19T07:44:00.000Z","agent":"developer","type":"done","step":"doc-sync","artifact":"mailbox/pipeline/doc-sync/DOC-REVERSE-SYNC.md","msg":"No doc edits required; 3 pre-existing gaps logged as follow-ups"}
+{"ts":"2026-05-19T07:44:00.000Z","agent":"orchestrator","type":"pipeline_done","step":"pipeline","msg":"STORY-001 pipeline complete — all 9 steps done"}
+{"ts":"2026-05-19T08:00:28Z","agent":"orchestrator","type":"start","step":"pipeline","msg":"Starting AIDLC pipeline for Add new pipeline or workflow"}
+{"ts":"2026-05-19T08:00:49Z","agent":"orchestrator","type":"start","step":"plan","msg":"Invoking product-owner for plan step"}
+{"ts":"2026-05-19T08:05:00.000Z","agent":"product-owner","type":"done","step":"plan","artifact":"mailbox/pipeline/plan/PRD.md"}
+{"ts":"2026-05-19T08:03:15Z","agent":"orchestrator","type":"start","step":"design","msg":"Invoking tech-lead for design step"}
+{"ts":"2026-05-19T08:15:00.000Z","agent":"tech-lead","type":"done","step":"design","artifact":"mailbox/pipeline/design/TECH-DESIGN.md"}
+{"ts":"2026-05-19T08:09:16Z","agent":"orchestrator","type":"start","step":"test-plan","msg":"Invoking qa-engineer for test-plan step"}

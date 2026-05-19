@@ -7,3 +7,13 @@ body { margin: 0; padding: 0; background: #0b1219; color: #c8d8e8; font-size: 12
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #243444; border-radius: 3px; }
+
+/* Pipeline status dashboard — spinner for in_progress steps (STORY-001) */
+@keyframes aidlc-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+.aidlc-spin {
+  display: inline-block;
+  animation: aidlc-spin 0.9s linear infinite;
+}

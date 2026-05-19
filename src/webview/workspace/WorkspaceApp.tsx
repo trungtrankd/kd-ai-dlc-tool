@@ -44,6 +44,118 @@ function logAgentBg(agent: string): string {
   return 'bg-teal-900/30 text-teal-300';
 }
 
+// ── Pipeline-dashboard helpers (STORY-001) ─────────────────────────────────
+
+type StepStatus = 'pending' | 'in_progress' | 'done' | 'failed' | 'blocked';
+
+function isStepStatus(s: string | undefined): s is StepStatus {
+  return s === 'pending' || s === 'in_progress' || s === 'done' || s === 'failed' || s === 'blocked';
+}
+
+/** Find the Task that drives a given pipeline step (by id). */
+function taskForStep(stepId: string, board: TaskBoard | null): Task | undefined {
+  return board?.tasks?.find(t => t.id === stepId);
+}
+
+/** Resolve the visual status for a step. Unknown / missing → 'pending'. */
+function stepStatus(stepId: string, board: TaskBoard | null): StepStatus {
+  const t = taskForStep(stepId, board);
+  return t && isStepStatus(t.status) ? t.status : 'pending';
+}
+
+/** Pick the most recent log entry whose agent matches either the task's agent or the step id. */
+function latestLogFor(stepId: string, task: Task | undefined, logs: LogEntry[]): LogEntry | null {
+  if (!logs || logs.length === 0) { return null; }
+  const candidates: LogEntry[] = [];
+  const taskAgent = (task?.agent || '').toLowerCase();
+  const step = stepId.toLowerCase();
+  for (const e of logs) {
+    const a = (e.agent || '').toLowerCase();
+    if (!a) { continue; }
+    if (a === taskAgent || a === step || a.includes(step)) {
+      candidates.push(e);
+    }
+  }
+  if (candidates.length === 0) { return null; }
+  // ISO 8601 timestamps sort lexicographically — pick max.
+  return candidates.reduce((max, cur) => (cur.ts > max.ts ? cur : max), candidates[0]);
+}
+
+/** Compute elapsed seconds between started_at and completed_at; return null when not computable. */
+function formatElapsed(started?: string, completed?: string): string | null {
+  if (!started || !completed) { return null; }
+  const s = Date.parse(started);
+  const e = Date.parse(completed);
+  if (Number.isNaN(s) || Number.isNaN(e) || e < s) { return null; }
+  const totalSec = Math.max(0, Math.round((e - s) / 1000));
+  if (totalSec < 60) { return `${totalSec}s`; }
+  const m = Math.floor(totalSec / 60);
+  const r = totalSec % 60;
+  return `${m}m ${r}s`;
+}
+
+interface StatusMeta {
+  icon: string;             // text/emoji glyph
+  iconClass?: string;       // extra class (e.g. spinner)
+  badgeLabel: string;       // ALL CAPS label
+  cardBorder: string;       // border CSS
+  cardBg: string;           // background CSS
+  badgeBg: string;          // status badge background
+  badgeColor: string;       // status badge text colour
+}
+
+function statusMeta(status: StepStatus): StatusMeta {
+  switch (status) {
+    case 'in_progress':
+      return {
+        icon: '\u29D7',           // 8-spoke asterisk — rendered with .aidlc-spin
+        iconClass: 'aidlc-spin',
+        badgeLabel: 'IN PROGRESS',
+        cardBorder: '1px solid rgba(0,180,164,0.45)',
+        cardBg: 'linear-gradient(180deg, #0b2a2a 0%, #0d1520 100%)',
+        badgeBg: 'rgba(0,180,164,0.18)',
+        badgeColor: '#9ef0e7',
+      };
+    case 'done':
+      return {
+        icon: '\u2713',           // ✓
+        badgeLabel: 'DONE',
+        cardBorder: '1px solid rgba(34,197,94,0.4)',
+        cardBg: '#0d1f17',
+        badgeBg: 'rgba(34,197,94,0.15)',
+        badgeColor: '#22c55e',
+      };
+    case 'failed':
+      return {
+        icon: '\u2717',           // ✗
+        badgeLabel: 'FAILED',
+        cardBorder: '1px solid rgba(239,68,68,0.45)',
+        cardBg: '#1f1014',
+        badgeBg: 'rgba(239,68,68,0.18)',
+        badgeColor: '#ef4444',
+      };
+    case 'blocked':
+      return {
+        icon: '\u25CF',           // ●
+        badgeLabel: 'BLOCKED',
+        cardBorder: '1px solid rgba(234,179,8,0.4)',
+        cardBg: '#1a1608',
+        badgeBg: 'rgba(234,179,8,0.18)',
+        badgeColor: '#eab308',
+      };
+    case 'pending':
+    default:
+      return {
+        icon: '\u25CB',           // ○
+        badgeLabel: 'PENDING',
+        cardBorder: '1px solid #1a2c3d',
+        cardBg: '#0d1520',
+        badgeBg: 'rgba(74,106,132,0.18)',
+        badgeColor: '#8aaabe',
+      };
+  }
+}
+
 // ── Reducer ────────────────────────────────────────────────────────────────
 function reducer(msg: unknown, prev: WorkspaceState): WorkspaceState {
   const m = msg as { command?: string; [k: string]: unknown };
@@ -238,8 +350,141 @@ function EpicCard({ board, stories, onApprove, onReject, onRerun, onRunStory, on
   );
 }
 
+// ── Pipeline Status Dashboard (STORY-001) ─────────────────────────────────
+
+function PipelineStepCard({ step, board, logs }: {
+  step: string;
+  board: TaskBoard | null;
+  logs: LogEntry[];
+}) {
+  const task = taskForStep(step, board);
+  const status = stepStatus(step, board);
+  const meta = statusMeta(status);
+  const elapsed = task && status === 'done'
+    ? formatElapsed(task.started_at, task.completed_at)
+    : null;
+  const latest = status === 'in_progress' ? latestLogFor(step, task, logs) : null;
+  const failureReason = status === 'failed' ? (task?.output ?? '').trim() : '';
+
+  return (
+    <div
+      className="rounded p-2.5"
+      style={{ background: meta.cardBg, border: meta.cardBorder }}
+      data-step={step}
+      data-status={status}
+      aria-label={`Step ${step} ${meta.badgeLabel}`}
+    >
+      <div className="flex items-center justify-between gap-2 mb-1">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span
+            className={`inline-block text-[13px] leading-none ${meta.iconClass ?? ''}`}
+            style={{ color: meta.badgeColor }}
+            aria-hidden="true"
+          >
+            {meta.icon}
+          </span>
+          <span className="font-bold text-[11px] uppercase tracking-wider" style={{ color: '#c8d8e8' }}>
+            {step}
+          </span>
+          <span
+            className="text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider"
+            style={{ background: meta.badgeBg, color: meta.badgeColor }}
+          >
+            {meta.badgeLabel}
+          </span>
+        </div>
+        {elapsed && (
+          <span className="text-[10px] font-mono" style={{ color: '#22c55e' }}>
+            {elapsed}
+          </span>
+        )}
+      </div>
+      {task?.agent && (
+        <div className="text-[10px]" style={{ color: '#4a6a84' }}>
+          agent: {task.agent}
+        </div>
+      )}
+      {latest && (
+        <div
+          className="mt-1.5 px-2 py-1 rounded text-[10px] font-mono truncate"
+          style={{ background: '#080f18', color: '#8aaabe' }}
+          title={latest.msg}
+        >
+          {latest.msg}
+        </div>
+      )}
+      {failureReason && (
+        <div
+          className="mt-1.5 px-2 py-1 rounded text-[10px] font-mono"
+          style={{ background: 'rgba(239,68,68,0.08)', color: '#ef4444' }}
+          title={failureReason}
+        >
+          {failureReason.length > 240 ? failureReason.slice(0, 237) + '…' : failureReason}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PipelineProgressBar({ steps, board }: { steps: string[]; board: TaskBoard | null }) {
+  if (steps.length === 0) { return null; }
+  let firstFailedIndex = -1;
+  let doneCount = 0;
+  steps.forEach((s, i) => {
+    const st = stepStatus(s, board);
+    if (st === 'done') { doneCount += 1; }
+    if (st === 'failed' && firstFailedIndex === -1) { firstFailedIndex = i; }
+  });
+  const hasFailure = firstFailedIndex !== -1;
+  // On failure, freeze the bar at the failed step's index. Otherwise show done count.
+  const filledSteps = hasFailure ? firstFailedIndex : doneCount;
+  const pct = Math.max(0, Math.min(100, Math.round((filledSteps / steps.length) * 100)));
+  const fillColor = hasFailure ? '#ef4444' : '#22c55e';
+  const label = hasFailure
+    ? `Failed at ${steps[firstFailedIndex]} (${filledSteps}/${steps.length})`
+    : `Done ${doneCount}/${steps.length}`;
+  return (
+    <div className="mb-3" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
+      <div className="flex items-center justify-between mb-1">
+        <span className="text-[9px] font-bold uppercase tracking-widest" style={{ color: '#1e3040' }}>
+          PIPELINE PROGRESS
+        </span>
+        <span className="text-[10px] font-mono" style={{ color: hasFailure ? '#ef4444' : '#8aaabe' }}>
+          {label} — {pct}%
+        </span>
+      </div>
+      <div className="h-1.5 rounded overflow-hidden" style={{ background: '#1a2c3d' }}>
+        <div
+          className="h-full transition-all"
+          style={{ width: `${pct}%`, background: fillColor }}
+        />
+      </div>
+    </div>
+  );
+}
+
+function PipelineDashboard({ steps, board, logs }: {
+  steps: string[];
+  board: TaskBoard | null;
+  logs: LogEntry[];
+}) {
+  return (
+    <div>
+      <PipelineProgressBar steps={steps} board={board} />
+      <div className="text-[9px] font-bold uppercase tracking-widest mb-2" style={{ color: '#1e3040' }}>
+        PIPELINE STEPS
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        {steps.map(step => (
+          <PipelineStepCard key={step} step={step} board={board} logs={logs} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function BuilderView({ state }: { state: WorkspaceState }) {
-  const { agents, stories, yaml, history, pipelineRunning } = state;
+  const { agents, stories, yaml, history, pipelineRunning, board, logs } = state;
   const [newStoryTitle, setNewStoryTitle] = useState('');
   const [newStoryDesc, setNewStoryDesc] = useState('');
   const [newStoryAC, setNewStoryAC] = useState('');
@@ -284,24 +529,9 @@ function BuilderView({ state }: { state: WorkspaceState }) {
       <div className="flex-1 overflow-y-auto p-4">
         {activeSubTab === 'pipeline' && (
           <div>
-            {/* Pipeline steps visualization */}
+            {/* Pipeline status dashboard — real-time per-step status with progress bar (STORY-001) */}
             <div className="mb-4">
-              <div className="text-[9px] font-bold uppercase tracking-widest mb-2" style={{ color: '#1e3040' }}>
-                PIPELINE STEPS
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {steps.map((step, i) => (
-                  <React.Fragment key={step}>
-                    <div className="flex items-center gap-1">
-                      <div className="px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider"
-                           style={{ background: '#0a5f56', border: '1px solid rgba(0,180,164,0.28)', color: '#9ef0e7' }}>
-                        {step}
-                      </div>
-                    </div>
-                    {i < steps.length - 1 && <span className="text-[#1e3040] self-center text-[11px]">&#x2192;</span>}
-                  </React.Fragment>
-                ))}
-              </div>
+              <PipelineDashboard steps={steps} board={board} logs={logs} />
             </div>
 
             {/* Actions */}
@@ -313,7 +543,7 @@ function BuilderView({ state }: { state: WorkspaceState }) {
                   color: pipelineRunning ? '#ef4444' : '#9ef0e7',
                   border: `1px solid ${pipelineRunning ? 'rgba(239,68,68,0.3)' : 'rgba(0,180,164,0.28)'}`,
                 }}>
-                {pipelineRunning ? '&#x25A0; CANCEL' : '&#x25B6; START EPIC'}
+                {pipelineRunning ? '\u25A0 CANCEL' : '\u25B6 START EPIC'}
               </button>
               <button onClick={() => postMessage({ command: 'continuePipeline' })}
                 className="px-3 py-1.5 rounded text-[11px] font-semibold cursor-pointer transition-colors"
