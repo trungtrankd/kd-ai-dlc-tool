@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(awk '{print NR\". \"$2}')",
+      "Bash(npx vsce *)",
+      "Bash(git -C /Users/nb230601/Documents/kd-ai-dlc-tool diff src/panels/BuilderPanel.ts)",
+      "Bash(git -C /Users/nb230601/Documents/kd-ai-dlc-tool show HEAD:src/panels/BuilderPanel.ts)"
+    ]
+  }
+}

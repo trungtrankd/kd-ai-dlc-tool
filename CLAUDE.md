@@ -64,3 +64,37 @@ The 9-step pipeline is defined in `BuilderPanel.ts` (`AIDLC_SKILLS`) and mirrore
 ### Bundling
 
 esbuild bundles `src/extension.ts` → `dist/extension.js` with `vscode` as an external. TypeScript is compiled to `dist/` separately via `tsc` for type checking; the actual extension loaded by VS Code is always the esbuild output.
+
+### Pipeline / Workflow feature
+
+Pipelines are defined in `.aidlc/workspace.yaml` under the `pipelines:` key. Each pipeline has:
+- `id` — unique slug used as the pipeline identifier
+- `steps` — ordered list of step names; a step can be prefixed with `human:` to mark it as requiring human approval (e.g. `human:test-plan`)
+- `on_failure` — `stop` (default) or `continue`
+
+**Step mode encoding** (implemented in `BuilderPanel.ts` webview JS):
+- `plan` → AUTO / default mode
+- `human:plan` → HUMAN mode (shown as purple badge on step boxes)
+
+**CRUD flow:**
+- **Create** — "+ Add Pipeline" button → modal → "Create pipeline" → `createPipeline` message → `addPipeline()` in `workspaceYamlReader.ts`
+- **Edit** — ✏ button on pipeline card → same modal pre-filled → "Update pipeline" → `editPipeline` message → `editPipeline()` (`deletePipeline` + `addPipeline`)
+- **Delete** — × button → `deletePipeline` message → `deletePipeline()` in `workspaceYamlReader.ts`
+- **Toggle on_failure** — click the ON_FAILURE badge on a card → `toggleOnFailure` → `patchPipelineOnFailure()`
+
+## After completing any task
+
+Always run the following two commands in order before reporting done:
+
+```bash
+# 1. Type-check
+npm run compile
+
+# 2. Package as VSIX for distribution
+npx vsce package
+```
+
+The output VSIX (`kd-ai-dlc-tool-<version>.vsix`) can be installed via:
+```bash
+code --install-extension kd-ai-dlc-tool-<version>.vsix
+```

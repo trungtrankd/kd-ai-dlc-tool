@@ -147,11 +147,10 @@ After producing the Final Report, if verdict is `READY FOR QA`:
 
 Append entries to `.agent-log.jsonl` at key moments using Bash:
 
-Always use absolute path `/Users/nb230601/Documents/multi-agent/.agent-log.jsonl` — never relative path.
 Generate timestamp with: `$(date -u +%Y-%m-%dT%H:%M:%SZ)`
 
 ```bash
-echo "{\"ts\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\",\"agent\":\"tech-lead\",\"type\":\"start\",\"msg\":\"Analyzing user story: User Registration\"}" >> /Users/nb230601/Documents/multi-agent/.agent-log.jsonl
+echo "{\"ts\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\",\"agent\":\"tech-lead\",\"type\":\"start\",\"msg\":\"Analyzing user story: User Registration\"}" >> .agent-log.jsonl
 ```
 
 Log these events:
@@ -169,7 +168,7 @@ Log types: `start` | `plan` | `dispatch` | `done` | `unblock` | `handoff` | `com
 
 Before dispatching each task, write a message to that agent's inbox using the **Write tool**:
 
-**File path:** `/Users/nb230601/Documents/multi-agent/mailbox/{agent-name}/inbox/{task-id}.json`
+**File path:** `mailbox/{agent-name}/inbox/{task-id}.json`
 
 **Message format:**
 ```json
@@ -191,7 +190,7 @@ Agents will reply to `mailbox/tech-lead/inbox/` when done. You may read these as
 
 Log each send to `.agent-log.jsonl`:
 ```bash
-echo "{\"ts\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\",\"agent\":\"tech-lead\",\"type\":\"dispatch\",\"msg\":\"[MAIL] Sent task be-001 → developer-backend\"}" >> /Users/nb230601/Documents/multi-agent/.agent-log.jsonl
+echo "{\"ts\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\",\"agent\":\"tech-lead\",\"type\":\"dispatch\",\"msg\":\"[MAIL] Sent task be-001 → developer-backend\"}" >> .agent-log.jsonl
 ```
 
 ## Rules

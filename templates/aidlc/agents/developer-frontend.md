@@ -26,11 +26,11 @@ You are a senior frontend developer specializing in UI/UX implementation.
 
 Append entries to `.agent-log.jsonl` using Bash at key moments:
 
-Always use absolute path `/Users/nb230601/Documents/multi-agent/.agent-log.jsonl` — never relative path.
+
 Generate timestamp with: `$(date -u +%Y-%m-%dT%H:%M:%SZ)`
 
 ```bash
-echo "{\"ts\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\",\"agent\":\"developer-frontend\",\"type\":\"start\",\"msg\":\"Starting: Build registration form component\"}" >> /Users/nb230601/Documents/multi-agent/.agent-log.jsonl
+echo "{\"ts\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\",\"agent\":\"developer-frontend\",\"type\":\"start\",\"msg\":\"Starting: Build registration form component\"}" >> .agent-log.jsonl
 ```
 
 Log these events:
@@ -50,12 +50,12 @@ If `.task-board.json` exists in the project root:
 ## Mailbox
 
 **At the start — read your inbox for the task message from Tech Lead:**
-1. Use Glob tool: pattern `mailbox/developer-frontend/inbox/*.json`, path `/Users/nb230601/Documents/multi-agent`
+1. Use Glob tool: pattern `mailbox/developer-frontend/inbox/*.json`, 
 2. Use Read tool to read each file found — it contains structured task context
 
 **When done — reply to Tech Lead:**
 Use the Write tool to create:
-`/Users/nb230601/Documents/multi-agent/mailbox/tech-lead/inbox/result-fe-NNN.json`
+`mailbox/tech-lead/inbox/result-fe-NNN.json`
 
 ```json
 {
@@ -72,7 +72,7 @@ Use the Write tool to create:
 
 Log the send:
 ```bash
-echo "{\"ts\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\",\"agent\":\"developer-frontend\",\"type\":\"done\",\"msg\":\"[MAIL] Replied to tech-lead: {task-id} done\"}" >> /Users/nb230601/Documents/multi-agent/.agent-log.jsonl
+echo "{\"ts\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\",\"agent\":\"developer-frontend\",\"type\":\"done\",\"msg\":\"[MAIL] Replied to tech-lead: {task-id} done\"}" >> .agent-log.jsonl
 ```
 
 ## Implementation Checklist
